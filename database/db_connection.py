@@ -11,20 +11,21 @@ class ConnectionDB:
         self.port = port
 
     def get_connection(self):
-        try:
-            return mysql.connector.connect(
-                host= self.host,
-                user= self.user ,
-                password = self.password,
-                database= self.database,
-                port= self.port
+        return mysql.connector.connect(
+            host= self.host,
+            user= self.user ,
+            password = self.password,
+            database= self.database,
+            port= self.port
+        )
+
+    def create_database(self) -> None:
+            conn = mysql.connector.connect(
+                host= "localhost",
+                user= "root",
+                password= "1234",
+                port= 3306
             )
-        except mysql.connector.Error as e:
-            return e
-
-    def create_database(self):
-
-            conn = self.get_connection()
             cursor = conn.cursor()
             query = """
             CREATE DATABASE IF NOT EXISTS Intelligence_db
@@ -56,10 +57,10 @@ class ConnectionDB:
         title VARCHAR(50) NOT NULL,
         description TEXT,
         location VARCHAR(50),
-        difficulty INT,
-        importance INT,
+        difficulty INT NOT NULL,
+        importance INT NOT NULL,
         status VARCHAR(50) DEFAULT 'NEW',
-        level_risk VARCHAR(50),
+        level_risk VARCHAR(50) NOT NULL,
         assigned_agent_id INT NULL 
         )
                 """
@@ -68,4 +69,7 @@ class ConnectionDB:
         cursor.close()
         conn.close()
 
-conne = ConnectionDB()
+if __name__ == "__main__":
+    connector = ConnectionDB()
+    connector.create_database()
+    connector.create_tables()
