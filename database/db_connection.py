@@ -3,20 +3,13 @@ from mysql.connector import Error
 
 
 class ConnectionDB:
-    def __init__(self, port = 3306):
-        self.host = "localhost"
-        self.user = "root"
-        self.password = "1234"
-        self.database = "Intelligence_db"
-        self.port = port
-
     def get_connection(self):
         return mysql.connector.connect(
-            host= self.host,
-            user= self.user ,
-            password = self.password,
-            database= self.database,
-            port= self.port
+            host=  "localhost",
+            user= "root" ,
+            password = "1234",
+            database= "Intelligence_db",
+            port= 3306
         )
 
     def create_database(self) -> None:
@@ -68,8 +61,3 @@ class ConnectionDB:
         conn.commit()
         cursor.close()
         conn.close()
-
-if __name__ == "__main__":
-    connector = ConnectionDB()
-    connector.create_database()
-    connector.create_tables()
