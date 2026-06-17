@@ -70,7 +70,33 @@ class AgentDB:
                  """
         values = list(data.values()) + [id]
         cursor.execute(query,values)
+        conn.commit()
         has_update = cursor.rowcount > 0
         cursor.close()
         conn.close()
         return has_update
+
+    def deactivate_agent(self, id):
+        conn = connector.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = f"""
+                 UPDATE agents SET is_active= FALSE WHERE id=%s
+                 """
+        cursor.execute(query, (id,))
+        conn.commit()
+        has_update = cursor.rowcount > 0
+        cursor.close()
+        conn.close()
+        return has_update
+
+    def count_active_agents(self):
+        conn = connector.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = f"""
+                SELECT COUNT(*) FROM agents WHERE is_active= TRUE
+                """
+        cursor.execute(query)
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return rows
