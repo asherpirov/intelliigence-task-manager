@@ -100,3 +100,35 @@ class AgentDB:
         cursor.close()
         conn.close()
         return rows
+
+#####
+    def increment_completed(self,id):
+        conn = connector.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = f"""
+                  UPDATE agents SET completed_missions= completed_missions + 1 WHERE id=%s
+                """
+        cursor.execute(query, (id,))
+        conn.commit()
+        has_update = cursor.rowcount > 0
+        cursor.close()
+        conn.close()
+        return has_update
+#####
+    def increment_failed(self,id):
+        conn = connector.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        query = f"""
+                  UPDATE agents SET failed_missions = failed_missions + 1 WHERE id=%s
+                """
+        cursor.execute(query, (id,))
+        conn.commit()
+        has_update = cursor.rowcount > 0
+        cursor.close()
+        conn.close()
+        return has_update
+#####
+    def get_agent_performance(self,id):
+        conn = connector.get_connection()
+        cursor = conn.cursor(dictionary=True)
+        pass
