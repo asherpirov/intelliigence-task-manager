@@ -53,7 +53,7 @@ class ConnectionDB:
         difficulty INT NOT NULL,
         importance INT NOT NULL,
         status VARCHAR(50) DEFAULT 'NEW',
-        level_risk VARCHAR(50) NOT NULL,
+        risk_level VARCHAR(50) NOT NULL,
         assigned_agent_id INT NULL 
         )
                 """

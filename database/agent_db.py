@@ -1,39 +1,22 @@
 from database.db_connection import ConnectionDB
-from pydantic import BaseModel
-from typing import Literal
-
-class NewAgent(BaseModel):
-    name : str
-    specialty : str
-    is_active : bool
-    completed_missions : int
-    failed_missions : int
-    agent_rank : Literal['junior', 'senior','commander']
-
-class UpdateAgent(BaseModel):
-    name : str | None = None
-    specialty : str |  None = None
-    is_active : bool |  None = None
-    completed_missions : int |  None = None
-    failed_missions : int |  None = None
-    agent_rank : Literal['junior', 'senior','commander'] |  None = None
 
 connector = ConnectionDB()
 
 class AgentDB:
 
-    def create_agent(self,data: NewAgent):
+    def create_agent(self,data: dict)-> dict:
        conn =  connector.get_connection()
        cursor = conn.cursor(dictionary=True)
        query = """
             INSERT INTO agents (name, specialty, agent_rank) 
             VALUES (%s, %s, %s)
                 """
-       cursor.execute(query,(data.name, data.specialty,data.agent_rank))
+       cursor.execute(query,(data["name"], data["specialty"],data["agent_rank"]))
+       new_id = cursor.lastrowid
        conn.commit()
        cursor.close()
        conn.close()
-       return {"message": "Agent creation successful"}
+       return self.get_agent_by_id(new_id)
 
     def get_all_agents(self) -> list[dict]:
         conn = connector.get_connection()
@@ -59,7 +42,7 @@ class AgentDB:
         conn.close()
         return agent
 
-    def update_agent(self, id, data: UpdateAgent):
+    def update_agent(self, id, data: dict)-> bool:
         conn = connector.get_connection()
         cursor = conn.cursor(dictionary=True)
 
@@ -93,15 +76,15 @@ class AgentDB:
         conn = connector.get_connection()
         cursor = conn.cursor(dictionary=True)
         query = f"""
-                SELECT COUNT(*) FROM agents WHERE is_active= TRUE
+                SELECT COUNT(*) as count FROM agents WHERE is_active= TRUE
                 """
         cursor.execute(query)
-        rows = cursor.fetchall()
+        row = cursor.fetchone()
         cursor.close()
         conn.close()
-        return rows
+        return row
 
-#####
+
     def increment_completed(self,id):
         conn = connector.get_connection()
         cursor = conn.cursor(dictionary=True)
@@ -114,7 +97,7 @@ class AgentDB:
         cursor.close()
         conn.close()
         return has_update
-#####
+
     def increment_failed(self,id):
         conn = connector.get_connection()
         cursor = conn.cursor(dictionary=True)
@@ -127,8 +110,34 @@ class AgentDB:
         cursor.close()
         conn.close()
         return has_update
-#####
-    def get_agent_performance(self,id):
+
+    def get_agent_performance(self,id) -> dict:
         conn = connector.get_connection()
         cursor = conn.cursor(dictionary=True)
-        pass
+        query = f"""
+                SELECT completed_missions, failed_missions FROM agents WHERE id=%s
+                """
+        cursor.execute(query,(id,))
+        data = cursor.fetchone()
+        completed = data["completed_missions"]
+        failed = data["failed_missions"]
+        total = completed + failed
+        if total == 0:
+            success_rate = 0
+        else:
+            success_rate = (completed/total) * 100
+
+        preform_data = {"completed": completed,
+                        "failed": failed,
+                        "total": total,
+                        "success_rate": success_rate}
+
+        return preform_data
+
+
+if __name__=="__main__":
+    new_data = {'name': 'ai', 'completed_missions': 4 , 'failed_missions': 2}
+    a = AgentDB()
+    print(a.get_all_agents())
+    print(a.get_agent_performance(1))
+    print(a.count_active_agents())
