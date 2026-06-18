@@ -91,11 +91,11 @@ class MissionDB:
         conn.close()
         return has_update
 
-    def get_open_missions_by_agent(self, id)->list[dict]:
+    def get_open_missions_by_agent(self, id):
         conn = connector.get_connection()
         cursor = conn.cursor(dictionary=True)
         query = """
-                  SELECT * FROM missions WHERE id= %s AND status = "ASSIGNED" OR status = "IN_PROGRESS"
+                  SELECT * FROM missions WHERE assigned_agent_id= %s AND status IN ("ASSIGNED", "IN_PROGRESS")
                    """
         cursor.execute(query, (id,))
         missions = cursor.fetchall()
@@ -131,8 +131,7 @@ class MissionDB:
         conn = connector.get_connection()
         cursor = conn.cursor(dictionary=True)
         query = """
-               SELECT COUNT(*) as count FROM missions WHERE status IN ("NEW", "ASSIGNED","IN_PROGRESS")
-               
+               SELECT COUNT(*) as count FROM missions WHERE status IN ("ASSIGNED","IN_PROGRESS")
                  """
         cursor.execute(query)
         missions = cursor.fetchone()
@@ -140,11 +139,11 @@ class MissionDB:
         conn.close()
         return missions
 
-    def count_critical_missions(self):
+    def count_cancelled_missions(self):
         conn = connector.get_connection()
         cursor = conn.cursor(dictionary=True)
         query = """
-                SELECT COUNT(*) as count FROM agents WHERE risk_level= "CRITICAL"
+                SELECT COUNT(*) as count FROM missions WHERE status = "CANCELLED"
                """
         cursor.execute(query)
         missions = cursor.fetchone()
@@ -156,7 +155,7 @@ class MissionDB:
         conn = connector.get_connection()
         cursor = conn.cursor(dictionary=True)
         query = """
-                 SELECT * FROM agents WHERE completed_missions ORDER BY completed_missions DESC LIMIT 1
+                 SELECT * FROM agents ORDER BY completed_missions DESC LIMIT 1
                 """
 
         cursor.execute(query)
@@ -168,4 +167,5 @@ class MissionDB:
 
 if __name__ == "__main__":
     m = MissionDB()
+    print(m.get_open_missions_by_agent(5))
 

@@ -133,11 +133,3 @@ class AgentDB:
                         "success_rate": success_rate}
 
         return preform_data
-
-
-if __name__=="__main__":
-    new_data = {'name': 'ai', 'completed_missions': 4 , 'failed_missions': 2}
-    a = AgentDB()
-    print(a.get_all_agents())
-    print(a.get_agent_performance(1))
-    print(a.count_active_agents())

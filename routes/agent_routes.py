@@ -1,6 +1,4 @@
 from fastapi import APIRouter, HTTPException
-from database.db_connection import ConnectionDB
-import uvicorn
 from pydantic import BaseModel
 from typing import Literal
 from database.agent_db import AgentDB
